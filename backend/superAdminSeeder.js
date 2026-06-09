@@ -8,18 +8,18 @@ connectDB()
 
 const createSuperAdmin = async () => {
   try {
-    const exists = await User.findOne({ email: 'superadmin@shopeasy.com' })
+    const exists = await User.findOne({ email: process.env.SUPER_ADMIN_EMAIL })
     if (exists) {
       console.log('Super admin already exists')
       process.exit()
     }
 
     const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash('superadmin123', salt)
+    const hashedPassword = await bcrypt.hash(process.env.SUPER_ADMIN_PASSWORD, salt)
 
     await User.create({
-      name: 'Super Admin',
-      email: 'superadmin@shopeasy.com',
+      name: process.env.SUPER_ADMIN_NAME,
+      email: process.env.SUPER_ADMIN_EMAIL,
       password: hashedPassword,
       isAdmin: true,
       isSuperAdmin: true,
