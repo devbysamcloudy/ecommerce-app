@@ -20,7 +20,9 @@ app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/superadmin', superAdminRoutes)
-
+app.use(cors({
+  origin: '*'
+}))
 app.get('/', (req, res) => {
     res.send("Server is running")
 })

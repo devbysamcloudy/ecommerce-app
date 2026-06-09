@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import API_URL from '../config'
 
 function AdminPage() {
   const navigate = useNavigate()
@@ -24,7 +25,7 @@ function AdminPage() {
     }
     try {
       await axios.post(
-        'http://localhost:5000/api/products',
+        `${API_URL}/api/products`,
         { name, price, description, image, category, countInStock },
         { headers: { Authorization: `Bearer ${userInfo.token}` } }
       )

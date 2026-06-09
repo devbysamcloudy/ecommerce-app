@@ -9,6 +9,7 @@ import CheckoutPage from './pages/CheckoutPage'
 import OrdersPage from './pages/OrdersPage'
 import AdminPage from './pages/AdminPage'
 import SuperAdminPage from './pages/SuperAdminPage'
+import API_URL from './config'
 
 function App() {
   const [products, setProducts] = useState([])
@@ -17,30 +18,31 @@ function App() {
   const [category, setCategory] = useState('All')
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
+    fetch(`${API_URL}/api/products`)
       .then(res => res.json())
       .then(data => setProducts(data))
   }, [])
+
   const addToCart = (product) => {
-  const exists = cart.find(item => item._id === product._id)
-  if (exists) {
-    // Don't exceed available stock
-    if (exists.quantity >= product.countInStock) {
-      alert(`Sorry, only ${product.countInStock} items available in stock!`)
-      return
+    const exists = cart.find(item => item._id === product._id)
+    if (exists) {
+      if (exists.quantity >= product.countInStock) {
+        alert(`Sorry, only ${product.countInStock} items available in stock!`)
+        return
+      }
+      setCart(cart.map(item =>
+        item._id === product._id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ))
+    } else {
+      setCart([...cart, { ...product, quantity: 1 }])
     }
-    setCart(cart.map(item =>
-      item._id === product._id
-        ? { ...item, quantity: item.quantity + 1 }
-        : item
-    ))
-  } else {
-    setCart([...cart, { ...product, quantity: 1 }])
   }
-}
+
   const removeFromCart = (id) => {
-  setCart(cart.filter(item => item._id !== id))
-}
+    setCart(cart.filter(item => item._id !== id))
+  }
 
   const categories = ['All', ...new Set(products.map(p => p.category))]
 

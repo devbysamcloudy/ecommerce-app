@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import API_URL from '../config'
 
 function SuperAdminPage() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-
-  // Create admin form state
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -30,7 +29,7 @@ function SuperAdminPage() {
   const fetchUsers = async () => {
     try {
       const { data } = await axios.get(
-        'http://localhost:5000/api/superadmin/users',
+        `${API_URL}/api/superadmin/users`,
         { headers: { Authorization: `Bearer ${userInfo.token}` } }
       )
       setUsers(data)
@@ -44,7 +43,7 @@ function SuperAdminPage() {
   const createAdminHandler = async () => {
     try {
       const { data } = await axios.post(
-        'http://localhost:5000/api/superadmin/create-admin',
+        `${API_URL}/api/superadmin/create-admin`,
         { name, email, password },
         { headers: { Authorization: `Bearer ${userInfo.token}` } }
       )
@@ -59,7 +58,7 @@ function SuperAdminPage() {
   const promoteHandler = async (id) => {
     try {
       const { data } = await axios.put(
-        `http://localhost:5000/api/superadmin/promote/${id}`,
+        `${API_URL}/api/superadmin/promote/${id}`,
         {},
         { headers: { Authorization: `Bearer ${userInfo.token}` } }
       )
@@ -73,7 +72,7 @@ function SuperAdminPage() {
   const demoteHandler = async (id) => {
     try {
       const { data } = await axios.put(
-        `http://localhost:5000/api/superadmin/demote/${id}`,
+        `${API_URL}/api/superadmin/demote/${id}`,
         {},
         { headers: { Authorization: `Bearer ${userInfo.token}` } }
       )
@@ -87,8 +86,6 @@ function SuperAdminPage() {
   return (
     <div className='bg-gray-100 min-h-screen p-8'>
       <h2 className='text-3xl font-bold mb-8 text-gray-800'>Super Admin Dashboard</h2>
-
-      {/* Create Admin Form */}
       <div className='bg-white rounded-lg shadow-md p-6 mb-8 max-w-lg'>
         <h3 className='text-xl font-bold mb-4 text-gray-800'>Create New Admin</h3>
         {message && <p className='text-green-500 mb-4 font-semibold'>{message}</p>}
@@ -121,8 +118,6 @@ function SuperAdminPage() {
           Create Admin
         </button>
       </div>
-
-      {/* Users Table */}
       {loading ? (
         <p className='text-center text-gray-500'>Loading users...</p>
       ) : (

@@ -19,7 +19,7 @@ function OrdersPage() {
     const fetchOrders = async () => {
       try {
         const { data } = await axios.get(
-          'http://localhost:5000/api/orders/myorders',
+          '${API_URL}/api/orders/myorders',
           {
             headers: {
               Authorization: `Bearer ${userInfo.token}`

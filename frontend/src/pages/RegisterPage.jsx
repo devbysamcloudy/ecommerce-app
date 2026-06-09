@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import API_URL from '../config'
 
 function RegisterPage() {
   const [name, setName] = useState('')
@@ -11,7 +12,7 @@ function RegisterPage() {
 
   const submitHandler = async () => {
     try {
-      const { data } = await axios.post('http://localhost:5000/api/users/register', {
+      const { data } = await axios.post(`${API_URL}/api/users/register`, {
         name,
         email,
         password

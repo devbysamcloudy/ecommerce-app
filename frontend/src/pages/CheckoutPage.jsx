@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useEffect } from 'react'
+import API_URL from '../config'
 
 function CheckoutPage({ cart, setCart }) {
   const navigate = useNavigate()
@@ -22,7 +23,7 @@ function CheckoutPage({ cart, setCart }) {
     }
     try {
       const { data } = await axios.post(
-        'http://localhost:5000/api/orders',
+        `${API_URL}/api/orders`,
         {
           orderItems: cart.map(item => ({
             name: item.name,
