@@ -111,7 +111,7 @@ const updateUserProfile = async (req, res) => {
     if (name) user.name = name;
     if (phone) user.phone = phone;
     if (avatar) user.avatar = avatar;
-    if (address) user.address = { ...user.address.toObject(), ...address };
+    if (address) user.address = { ...(user.address || {}), ...address };
 
     if (password) {
       const salt = await bcrypt.genSalt(10);
