@@ -11,6 +11,7 @@ function CheckoutPage({ cart, setCart }) {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [orderId, setOrderId] = useState(null)
+  const [orderTotal, setOrderTotal] = useState(0) 
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
@@ -36,6 +37,7 @@ function CheckoutPage({ cart, setCart }) {
         { headers: { Authorization: `Bearer ${userInfo.token}` } }
       )
       setOrderId(data._id)
+      setOrderTotal(total)   // ✅ save before clearing cart
       setCart([])
       setLoading(false)
     } catch (error) {
@@ -51,13 +53,13 @@ function CheckoutPage({ cart, setCart }) {
       setMessage('')
       await axios.post(
         `${API_URL}/api/payments/initiate`,
-        { orderId, phone, amount: total },
+        { orderId, phone, amount: orderTotal },  // ✅ use orderTotal
         { headers: { Authorization: `Bearer ${userInfo.token}` } }
       )
       setMessage('STK Push sent! Check your phone and enter your M-Pesa PIN.')
       setLoading(false)
     } catch (error) {
-      setMessage(' Payment failed. Please try again.')
+      setMessage('Payment failed. Please try again.')
       setLoading(false)
     }
   }
@@ -74,12 +76,12 @@ function CheckoutPage({ cart, setCart }) {
               <div key={item._id} className='flex justify-between items-center border-b border-gray-200 py-4'>
                 <p className='font-semibold text-gray-800'>{item.name}</p>
                 <p className='text-gray-500'>x{item.quantity}</p>
-                <p className='text-blue-600 font-bold'>${item.price * item.quantity}</p>
+                <p className='text-blue-600 font-bold'>KES {item.price * item.quantity}</p>
               </div>
             ))}
             <div className='flex justify-between items-center mt-6'>
               <h3 className='text-xl font-bold text-gray-800'>Total</h3>
-              <h3 className='text-xl font-bold text-blue-600'>${total}</h3>
+              <h3 className='text-xl font-bold text-blue-600'>KES {total}</h3>
             </div>
             <button
               onClick={placeOrderHandler}
@@ -93,9 +95,9 @@ function CheckoutPage({ cart, setCart }) {
           <>
             <h3 className='text-xl font-bold mb-2 text-gray-800'>Pay with M-Pesa</h3>
             <p className='text-gray-500 mb-6'>Order ID: {orderId}</p>
-            <p className='text-2xl font-bold text-green-600 mb-6'>Total: KES {total}</p>
+            <p className='text-2xl font-bold text-green-600 mb-6'>Total: KES {orderTotal}</p>  {/* ✅ */}
             {message && (
-              <p className={`mb-4 font-semibold ${message.includes('✅') ? 'text-green-500' : 'text-red-500'}`}>
+              <p className={`mb-4 font-semibold ${message.includes('STK') ? 'text-green-500' : 'text-red-500'}`}>
                 {message}
               </p>
             )}
@@ -111,7 +113,7 @@ function CheckoutPage({ cart, setCart }) {
               disabled={loading}
               className='w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded font-semibold disabled:opacity-50'
             >
-              {loading ? 'Sending STK Push...' : '💚 Pay with M-Pesa'}
+              {loading ? 'Sending STK Push...' : 'Pay with M-Pesa'}
             </button>
             <button
               onClick={() => navigate('/orders')}
