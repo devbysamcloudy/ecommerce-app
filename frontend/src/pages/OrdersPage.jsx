@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import API_URL from '../config'
+import { useAuth } from '../context/AuthContext'
 
 function OrdersPage() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
-
-  const userInfo = localStorage.getItem('userInfo')
-    ? JSON.parse(localStorage.getItem('userInfo'))
-    : null
+  const { userInfo } = useAuth()
 
   useEffect(() => {
     if (!userInfo) {
@@ -19,7 +18,7 @@ function OrdersPage() {
     const fetchOrders = async () => {
       try {
         const { data } = await axios.get(
-          '${API_URL}/api/orders/myorders',
+          `${API_URL}/api/orders/myorders`,
           {
             headers: {
               Authorization: `Bearer ${userInfo.token}`
