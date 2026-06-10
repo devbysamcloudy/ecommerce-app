@@ -7,6 +7,7 @@ const userRoutes = require("./routes/userRoutes")
 const orderRoutes = require('./routes/orderRoutes')
 const superAdminRoutes = require('./routes/superAdminRoutes')
 const { apiLimiter } = require('./middleware/rateLimiter');
+const paymentRoutes = require('./routes/paymentRoutes')
 
 dotenv.config()
 
@@ -16,12 +17,13 @@ const app = express()
 app.use(cors({ origin: '*' }))
 app.use(express.json())
 
-app.get('/', (req, res) => res.send("Server is running"))
+app.use('/api', apiLimiter)               
+
 app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/superadmin', superAdminRoutes)
-app.use('/api', apiLimiter);
+app.use('/api/payments', paymentRoutes)
 
 const PORT = process.env.PORT || 5000
 
