@@ -12,6 +12,7 @@ import SuperAdminPage from './pages/SuperAdminPage'
 import ProfilePage from './pages/ProfilePage'
 import ProtectedRoute from './components/ProtectedRoute'
 import API_URL from './config'
+import HeroSection from './components/HeroSection'
 
 function App() {
   const [products, setProducts] = useState([])
@@ -49,46 +50,48 @@ function App() {
     return matchesSearch && matchesCategory
   })
 
-  return (
-    <>
-      <Navbar cartCount={cart.length} />
-      <div style={{ padding: '20px' }}>
-        <Routes>
-          <Route path='/' element={
-            <div className='bg-gray-100 min-h-screen p-8'>
-              <h1 className='text-3xl font-bold mb-6 text-gray-800'>Our Products</h1>
-              <div className='flex gap-4 mb-8'>
-                <input type='text' placeholder='Search products...' value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className='border border-gray-300 rounded px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500' />
-                <select value={category} onChange={(e) => setCategory(e.target.value)}
-                  className='border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'>
-                  {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                </select>
-              </div>
-              {filteredProducts.length === 0 ? (
-                <p className='text-gray-500 text-center text-xl'>No products found</p>
-              ) : (
-                <div className='flex flex-wrap gap-6'>
-                  {filteredProducts.map(product => (
-                    <ProductCard key={product._id} product={product} addToCart={addToCart} />
-                  ))}
-                </div>
-              )}
+ return (
+  <>
+    <Navbar cartCount={cart.length} />
+    <Routes>
+      <Route path='/' element={
+        <div className='bg-gray-100 min-h-screen'>
+          <HeroSection />
+          <div id='products' className='p-8'>
+            <h1 className='text-3xl font-bold mb-6 text-gray-800'>Our Products</h1>
+            <div className='flex gap-4 mb-8'>
+              <input type='text' placeholder='Search products...' value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className='border border-gray-300 rounded px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500' />
+              <select value={category} onChange={(e) => setCategory(e.target.value)}
+                className='border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'>
+                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+              </select>
             </div>
-          } />
-          <Route path='/login' element={<LoginPage />} />
-          <Route path='/register' element={<RegisterPage />} />
-          <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-          <Route path='/cart' element={<CartPage cart={cart} removeFromCart={removeFromCart} />} />
-          <Route path='/checkout' element={<ProtectedRoute><CheckoutPage cart={cart} setCart={setCart} /></ProtectedRoute>} />
-          <Route path='/orders' element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
-          <Route path='/admin' element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
-          <Route path='/superadmin' element={<ProtectedRoute superAdminOnly><SuperAdminPage /></ProtectedRoute>} />
-        </Routes>
-      </div>
-    </>
+            {filteredProducts.length === 0 ? (
+              <p className='text-gray-500 text-center text-xl'>No products found</p>
+            ) : (
+              <div className='flex flex-wrap gap-6'>
+                {filteredProducts.map(product => (
+                  <ProductCard key={product._id} product={product} addToCart={addToCart} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      } />
+      <Route path='/login' element={<LoginPage />} />
+      <Route path='/register' element={<RegisterPage />} />
+      <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path='/cart' element={<CartPage cart={cart} removeFromCart={removeFromCart} />} />
+      <Route path='/checkout' element={<ProtectedRoute><CheckoutPage cart={cart} setCart={setCart} /></ProtectedRoute>} />
+      <Route path='/orders' element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+      <Route path='/admin' element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
+      <Route path='/superadmin' element={<ProtectedRoute superAdminOnly><SuperAdminPage /></ProtectedRoute>} />
+    </Routes>
+  </>
   )
+
 }
 
 export default App
