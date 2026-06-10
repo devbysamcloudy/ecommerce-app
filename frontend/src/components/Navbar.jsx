@@ -1,16 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 function Navbar({ cartCount }) {
   const navigate = useNavigate()
-  const userInfo = localStorage.getItem('userInfo')
-    ? JSON.parse(localStorage.getItem('userInfo'))
-    : null
+  const { userInfo, logout } = useAuth()
 
   const logoutHandler = () => {
-    localStorage.removeItem('userInfo')
+    logout()
     navigate('/login')
   }
-  
 
   return (
     <nav className='bg-gray-900 text-white px-6 py-4 flex justify-between items-center shadow-lg'>
@@ -23,17 +21,19 @@ function Navbar({ cartCount }) {
         </Link>
         {userInfo?.isAdmin && (
           <Link to='/admin' className='text-white hover:text-gray-300'>Admin</Link>
-            )}
+        )}
         {userInfo?.isSuperAdmin && (
-          <Link to='/superadmin' className='text-white hover:text-gray-300'>
-          Super Admin
-          </Link>
-          )}    
+          <Link to='/superadmin' className='text-white hover:text-gray-300'>Super Admin</Link>
+        )}
         {userInfo ? (
           <>
             <Link to='/orders' className='text-white hover:text-gray-300'>My Orders</Link>
+            <Link to='/profile' className='text-white hover:text-gray-300'>My Profile</Link>
             <span className='text-gray-300'>Hello, {userInfo.name}</span>
-            <button onClick={logoutHandler} className='bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-white'>
+            <button
+              onClick={logoutHandler}
+              className='bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-white'
+            >
               Logout
             </button>
           </>
@@ -43,7 +43,6 @@ function Navbar({ cartCount }) {
             <Link to='/register' className='bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded text-white'>
               Register
             </Link>
-            
           </>
         )}
       </div>
