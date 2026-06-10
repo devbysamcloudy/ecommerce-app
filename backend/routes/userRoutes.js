@@ -6,6 +6,7 @@ const {
   registerUser,
   loginUser,
   checkEmailExists,
+  checkEmailDomain,
   getUserProfile,
   updateUserProfile,
 } = require('../controllers/userController');
@@ -13,7 +14,9 @@ const {
 router.post('/register', authLimiter, registerUser);
 router.post('/login', authLimiter, loginUser);
 router.get('/check-email', checkEmailExists);        // public  — GET with ?email=
+router.get('/check-email-domain', checkEmailDomain)
 router.get('/profile', protect, getUserProfile);     // private — needs token
 router.put('/profile', protect, updateUserProfile);  // private — needs token
+
 
 module.exports = router;

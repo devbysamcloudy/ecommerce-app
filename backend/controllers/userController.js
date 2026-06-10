@@ -134,12 +134,35 @@ const updateUserProfile = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Server error.' });
   }
-};
+}
+const dns = require('dns').promises
+
+// @desc   Check if email domain has valid MX records
+// @route  GET /api/users/check-email-domain?email=
+// @access Public
+const checkEmailDomain = async (req, res) => {
+  const { email } = req.query
+  if (!email) return res.status(400).json({ message: 'Email is required.' })
+
+  const domain = email.split('@')[1]
+  if (!domain) return res.status(400).json({ valid: false })
+
+  try {
+    const records = await dns.resolveMx(domain)
+    const valid = records && records.length > 0
+    return res.status(200).json({ valid })
+  } catch {
+    // resolveMx throws if domain doesn't exist or has no MX records
+    return res.status(200).json({ valid: false })
+  }
+}
 
 module.exports = {
   registerUser,
   loginUser,
   checkEmailExists,
+  checkEmailDomain,
   getUserProfile,
   updateUserProfile,
+
 };
