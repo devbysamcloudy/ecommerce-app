@@ -13,6 +13,7 @@ import ProfilePage from './pages/ProfilePage'
 import ProtectedRoute from './components/ProtectedRoute'
 import API_URL from './config'
 import HeroSection from './components/HeroSection'
+import OTPPage from './pages/OTPPage'
 
 function App() {
   const [products, setProducts] = useState([])
@@ -82,6 +83,7 @@ function App() {
       } />
       <Route path='/login' element={<LoginPage />} />
       <Route path='/register' element={<RegisterPage />} />
+      <Route path='/verify-otp' element={<OTPPage />} />
       <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path='/cart' element={<CartPage cart={cart} removeFromCart={removeFromCart} />} />
       <Route path='/checkout' element={<ProtectedRoute><CheckoutPage cart={cart} setCart={setCart} /></ProtectedRoute>} />

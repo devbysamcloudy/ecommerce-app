@@ -65,29 +65,28 @@ function RegisterPage() {
     }
   }
 
-  const submitHandler = async () => {
-    if (!name || !email || !password || !confirmPassword) {
-      setError('Please fill in all fields.')
-      return
-    }
-    if (password !== confirmPassword) {
-      setPasswordError('Passwords do not match.')
-      return
-    }
-    if (emailError || passwordError) return
-
-    try {
-      setLoading(true)
-      setError('')
-      const { data } = await axios.post(`${API_URL}/api/users/register`, { name, email, password })
-      login(data)
-      navigate('/')
-    } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed.')
-    } finally {
-      setLoading(false)
-    }
+const submitHandler = async () => {
+  if (!name || !email || !password || !confirmPassword) {
+    setError('Please fill in all fields.')
+    return
   }
+  if (password !== confirmPassword) {
+    setPasswordError('Passwords do not match.')
+    return
+  }
+  if (emailError || passwordError) return
+
+  try {
+    setLoading(true)
+    setError('')
+    const { data } = await axios.post(`${API_URL}/api/users/register`, { name, email, password })
+    navigate('/verify-otp', { state: { userId: data.userId } }) 
+  } catch (err) {
+    setError(err.response?.data?.message || 'Registration failed.')
+  } finally {
+    setLoading(false)
+  }
+}
 
   const isBlocked = loading || !!emailError || !!passwordError || emailChecking
 

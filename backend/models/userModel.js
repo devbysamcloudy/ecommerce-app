@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 const userSchema = mongoose.Schema({
   name: { type: String, required: true },
@@ -6,9 +6,11 @@ const userSchema = mongoose.Schema({
   password: { type: String, required: true },
   isAdmin: { type: Boolean, default: false },
   isSuperAdmin: { type: Boolean, default: false },
-  role: { type: String, enum: ['user', 'admin', 'superAdmin'], default: 'user' }
+  role: { type: String, enum: ['user', 'admin', 'superAdmin'], default: 'user' },
+  isVerified: { type: Boolean, default: false },
+  otp: { type: String, default: null },
+  otpExpiry: { type: Date, default: null }
 }, { timestamps: true })
 
-const User = mongoose.model('User', userSchema);
-
-module.exports = User;
+const User = mongoose.model('User', userSchema)
+module.exports = User
