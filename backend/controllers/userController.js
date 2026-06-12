@@ -1,6 +1,7 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const dns = require('dns').promises
 const { sendOTPEmail } = require('../utils/mailer')
 
 const generateToken = (id) => {
@@ -22,7 +23,7 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt)
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000)
 
     const user = await User.create({
       name,
@@ -33,7 +34,11 @@ const registerUser = async (req, res) => {
       otpExpiry
     })
 
-    await sendOTPEmail(user.email, otp)
+    try {
+      await sendOTPEmail(user.email, otp)
+    } catch (emailError) {
+      console.log(`OTP for ${user.email}: ${otp}`)
+    }
 
     res.status(201).json({
       message: 'Registration successful. Check your email for the OTP.',
@@ -43,7 +48,7 @@ const registerUser = async (req, res) => {
     console.error('Register error:', error.message)
     res.status(500).json({ message: 'Server error.' })
   }
-};
+}
 
 // @desc   Login user
 // @route  POST /api/users/login
@@ -55,7 +60,7 @@ const loginUser = async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: 'Invalid email or password.' })
     }
-    if (!user.isVerified) {
+    if (!user.isVerified && !user.isSuperAdmin) {
       return res.status(403).json({ message: 'Please verify your email before logging in.' })
     }
     res.json({
@@ -70,79 +75,21 @@ const loginUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Server error.' })
   }
-};
+}
 
 // @desc   Check if email exists
 // @route  GET /api/users/check-email?email=
 // @access Public
 const checkEmailExists = async (req, res) => {
   try {
-    const { email } = req.query;
-    if (!email) {
-      return res.status(400).json({ message: 'Email is required.' });
-    }
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
-    return res.status(200).json({ exists: !!user });
+    const { email } = req.query
+    if (!email) return res.status(400).json({ message: 'Email is required.' })
+    const user = await User.findOne({ email: email.toLowerCase().trim() })
+    return res.status(200).json({ exists: !!user })
   } catch (error) {
-    res.status(500).json({ message: 'Server error.' });
-  }
-};
-
-// @desc   Get logged-in user profile
-// @route  GET /api/users/profile
-// @access Private
-const getUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error.' });
-  }
-};
-
-// @desc   Update logged-in user profile
-// @route  PUT /api/users/profile
-// @access Private
-const updateUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-
-    const { name, phone, address, avatar, password } = req.body;
-
-    if (name) user.name = name;
-    if (phone) user.phone = phone;
-    if (avatar) user.avatar = avatar;
-    if (address) user.address = { ...(user.address || {}), ...address };
-
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-    }
-
-    const updatedUser = await user.save();
-
-    res.status(200).json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      phone: updatedUser.phone,
-      address: updatedUser.address,
-      avatar: updatedUser.avatar,
-      isAdmin: updatedUser.isAdmin,
-      isSuperAdmin: updatedUser.isSuperAdmin,
-      role: updatedUser.role,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error.' });
+    res.status(500).json({ message: 'Server error.' })
   }
 }
-const dns = require('dns').promises
 
 // @desc   Check if email domain has valid MX records
 // @route  GET /api/users/check-email-domain?email=
@@ -150,19 +97,16 @@ const dns = require('dns').promises
 const checkEmailDomain = async (req, res) => {
   const { email } = req.query
   if (!email) return res.status(400).json({ message: 'Email is required.' })
-
   const domain = email.split('@')[1]
   if (!domain) return res.status(400).json({ valid: false })
-
   try {
     const records = await dns.resolveMx(domain)
-    const valid = records && records.length > 0
-    return res.status(200).json({ valid })
+    return res.status(200).json({ valid: records && records.length > 0 })
   } catch {
-    // resolveMx throws if domain doesn't exist or has no MX records
     return res.status(200).json({ valid: false })
   }
 }
+
 // @desc   Verify OTP
 // @route  POST /api/users/verify-otp
 // @access Public
@@ -213,8 +157,64 @@ const resendOTP = async (req, res) => {
     user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000)
     await user.save()
 
-    await sendOTPEmail(user.email, otp)
+    try {
+      await sendOTPEmail(user.email, otp)
+    } catch (emailError) {
+      console.log(`OTP for ${user.email}: ${otp}`)
+    }
+
     res.json({ message: 'New OTP sent to your email.' })
+  } catch (error) {
+    res.status(500).json({ message: 'Server error.' })
+  }
+}
+
+// @desc   Get logged-in user profile
+// @route  GET /api/users/profile
+// @access Private
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password')
+    if (!user) return res.status(404).json({ message: 'User not found.' })
+    res.status(200).json(user)
+  } catch (error) {
+    res.status(500).json({ message: 'Server error.' })
+  }
+}
+
+// @desc   Update logged-in user profile
+// @route  PUT /api/users/profile
+// @access Private
+const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+    if (!user) return res.status(404).json({ message: 'User not found.' })
+
+    const { name, phone, address, avatar, password } = req.body
+
+    if (name) user.name = name
+    if (phone) user.phone = phone
+    if (avatar) user.avatar = avatar
+    if (address) user.address = { ...(user.address || {}), ...address }
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10)
+      user.password = await bcrypt.hash(password, salt)
+    }
+
+    const updatedUser = await user.save()
+
+    res.status(200).json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      address: updatedUser.address,
+      avatar: updatedUser.avatar,
+      isAdmin: updatedUser.isAdmin,
+      isSuperAdmin: updatedUser.isSuperAdmin,
+      role: updatedUser.role,
+    })
   } catch (error) {
     res.status(500).json({ message: 'Server error.' })
   }
