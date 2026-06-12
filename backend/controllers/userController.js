@@ -34,11 +34,12 @@ const registerUser = async (req, res) => {
       otpExpiry
     })
 
-    try {
-      await sendOTPEmail(user.email, otp)
-    } catch (emailError) {
-      console.log(`OTP for ${user.email}: ${otp}`)
-    }
+        try {
+          await sendOTPEmail(user.email, otp)
+        } catch (emailError) {
+          console.error('Email send failed:', emailError.message) 
+          console.log(`OTP for ${user.email}: ${otp}`)
+        }
 
     res.status(201).json({
       message: 'Registration successful. Check your email for the OTP.',

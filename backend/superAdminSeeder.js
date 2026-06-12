@@ -23,7 +23,8 @@ const createSuperAdmin = async () => {
       password: hashedPassword,
       isAdmin: true,
       isSuperAdmin: true,
-      role: 'superAdmin'
+      role: 'superAdmin',
+      "isVerified": true
     })
 
     console.log('Super admin created successfully!')
