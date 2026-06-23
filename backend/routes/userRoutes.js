@@ -11,6 +11,7 @@ const {
   resendOTP,
   getUserProfile,
   updateUserProfile,
+  deleteUserAccount
 } = require('../controllers/userController');
 
 router.post('/register', authLimiter, registerUser);
@@ -21,6 +22,7 @@ router.post('/verify-otp', verifyOTP)
 router.post('/resend-otp', resendOTP)
 router.get('/profile', protect, getUserProfile);     // private — needs token
 router.put('/profile', protect, updateUserProfile);  // private — needs token
+route.delete('/profile', protect, deleteUserAccount)
 
 
 module.exports = router;

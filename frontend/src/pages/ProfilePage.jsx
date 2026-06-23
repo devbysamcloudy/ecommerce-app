@@ -98,6 +98,22 @@ function ProfilePage() {
     }
   }
 
+  const deleteHandler = async () => {
+  const confirmed = window.confirm(
+    'Are you sure you want to delete your account? This action cannot be undone.'
+  )
+  if (!confirmed) return
+  try {
+    await axios.delete(`${API_URL}/api/users/profile`, {
+      headers: { Authorization: `Bearer ${userInfo.token}` }
+    })
+    logout()
+    navigate('/')
+  } catch (err) {
+    setError(err.response?.data?.message || 'Failed to delete account.')
+  }
+}
+
   return (
     <div className='min-h-screen bg-gray-100 flex items-center justify-center'>
       <div className='bg-white p-8 rounded-lg shadow-md w-full max-w-md'>
