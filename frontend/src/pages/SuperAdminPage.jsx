@@ -83,6 +83,22 @@ function SuperAdminPage() {
     }
   }
 
+  const deleteHandler = async (id) => {
+    const confirmed = window.confirm('Are you sure you want to delete this user? This cannot be undone.')
+    if (!confirmed) return
+    try {
+      const { data } = await axios.delete(
+        `${API_URL}/api/superadmin/users/${id}`,
+        { headers: { Authorization: `Bearer ${userInfo.token}` } }
+      )
+      setMessage(data.message)
+      setError('')
+      fetchUsers()
+    } catch (error) {
+      setError('Failed to delete user.')
+    }
+  }
+
   return (
     <div className='bg-gray-100 min-h-screen p-8'>
       <h2 className='text-3xl font-bold mb-8 text-gray-800'>Super Admin Dashboard</h2>
@@ -118,6 +134,7 @@ function SuperAdminPage() {
           Create Admin
         </button>
       </div>
+
       {loading ? (
         <p className='text-center text-gray-500'>Loading users...</p>
       ) : (
@@ -129,6 +146,7 @@ function SuperAdminPage() {
                 <th className='p-4 text-left'>Email</th>
                 <th className='p-4 text-left'>Role</th>
                 <th className='p-4 text-left'>Action</th>
+                <th className='p-4 text-left'>Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -162,6 +180,16 @@ function SuperAdminPage() {
                           Promote
                         </button>
                       )
+                    )}
+                  </td>
+                  <td className='p-4'>
+                    {!user.isSuperAdmin && (
+                      <button
+                        onClick={() => deleteHandler(user._id)}
+                        className='bg-red-700 hover:bg-red-800 text-white px-3 py-1 rounded text-sm'
+                      >
+                        Delete
+                      </button>
                     )}
                   </td>
                 </tr>
