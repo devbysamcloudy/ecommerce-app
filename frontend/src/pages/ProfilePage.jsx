@@ -164,6 +164,12 @@ function ProfilePage() {
           className='w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded font-semibold disabled:opacity-50'>
           {uploading ? 'Uploading photo...' : loading ? 'Saving...' : 'Save Changes'}
         </button>
+
+        <button onClick={deleteHandler}
+          className='w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded font-semibold mt-3'>
+          Delete Account
+        </button>
+        
       </div>
     </div>
   )
